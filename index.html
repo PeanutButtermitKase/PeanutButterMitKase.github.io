@@ -1,61 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0"
-    />
-    <script
-      src="https://aframe.io/releases/1.2.0/aframe.min.js"
-    ></script>
-  </head>
-  <body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mozilla Hubs BitECS Example</title>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://unpkg.com/bitecs@1.0.0/dist/bitecs.min.js"></script>
+</head>
+<body>
     <a-scene>
-      <!-- Sky -->
-      <a-sky color="#87CEEB"></a-sky>
+        <a-entity id="cube" geometry="primitive: box" material="color: #4CC3D9" position="0 1.6 -5"></a-entity>
 
-      <!-- Ground -->
-      <a-plane
-        position="0 0 0"
-        rotation="-90 0 0"
-        width="100"
-        height="100"
-        color="#00ff00"
-      ></a-plane>
-
-      <!-- Box -->
-      <a-box
-        position="0 1.5 -5"
-        rotation="0 45 0"
-        width="1"
-        height="1"
-        depth="1"
-        color="#4CC3D9"
-      ></a-box>
-
-      <!-- Sphere -->
-      <a-sphere
-        position="-2 1.5 -5"
-        radius="1"
-        color="#EF2D5E"
-      ></a-sphere>
-
-      <!-- Cylinder -->
-      <a-cylinder
-        position="2 1.5 -5"
-        radius="0.75"
-        height="1.5"
-        color="#FFC65D"
-      ></a-cylinder>
-
-      <!-- Camera and controls -->
-      <a-entity
-        camera
-        look-controls
-        wasd-controls
-        position="0 1.6 0"
-      ></a-entity>
+        <a-entity camera look-controls wasd-controls position="0 1.6 0"></a-entity>
     </a-scene>
-  </body>
+
+    <script>
+        // Import BitECS and create a new world
+        const { createWorld, Types, Not } = window.bitecs;
+        const world = createWorld();
+
+        // Define components
+        const Position = Types.i16;
+        const Rotation = Types.i16;
+
+        // Create an entity with components
+        const entity = world.createEntity();
+        world.addComponent(entity, Position);
+        world.addComponent(entity, Rotation);
+
+        // Set initial values for components
+        world.setComponent(entity, Position, 0, 1.6, -5);
+        world.setComponent(entity, Rotation, 0, 0, 0);
+
+        // Update function to be called each frame
+        function update() {
+            // Access components and update the A-Frame entity
+            const position = world.getComponent(entity, Position);
+            const rotation = world.getComponent(entity, Rotation);
+
+            const cube = document.getElementById('cube');
+            cube.setAttribute('position', `${position[0]} ${position[1]} ${position[2]}`);
+            cube.setAttribute('rotation', `${rotation[0]} ${rotation[1]} ${rotation[2]}`);
+        }
+
+        // Register the update function to be called each frame
+        AFRAME.registerComponent('bitECS-update', {
+            tick: function () {
+                update();
+            }
+        });
+    </script>
+</body>
 </html>
